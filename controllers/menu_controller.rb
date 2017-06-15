@@ -4,16 +4,17 @@ class MenuController
   attr_reader :address_book
 
   def initialize
-    @address_book = AddressBook.new
+    @address_book = AddressBook.first
   end
 
   def main_menu
-    puts "Main Menu - #{address_book.entries.count} entries"
+    puts "#{@address_book.name} Address Book - #{Entry.count} entries"
     puts "1 - View all entries"
     puts "2 - Create an entry"
     puts "3 - Search for an entry"
     puts "4 - Import entries from a CSV"
     puts "5 - Exit"
+    puts "6 - Test"
     print "Enter your selection: "
 
     selection = gets.to_i
@@ -38,6 +39,11 @@ class MenuController
       when 5
         puts "Good-bye!"
         exit(0)
+      when 6
+        puts "Test"
+        test_1
+        main_menu
+
       else
         system "clear"
         puts "Sorry, that is not a valid input"
@@ -45,8 +51,17 @@ class MenuController
     end
   end
 
+  def test_1
+    #check yo'self
+    # puts Entry.find_by(:name,"ewew")
+    # puts Entry.find_by_name("ewew")
+    # puts Entry.find_each {|row| "#{row}" }
+    # puts Entry.find_each(batch_size: 2) {|row| "#{row}" }
+    # puts Entry.find_in_batches(3,4) {|row| "#{row}"}
+  end
+
   def view_all_entries
-    address_book.entries.each do |entry|
+    Entry.all.each do |entry|
       system "clear"
       puts entry.to_s
       entry_submenu(entry)
@@ -75,7 +90,7 @@ class MenuController
   def search_entries
     print "Search by name: "
     name = gets.chomp
-    match = address_book.binary_search(name)
+    match = Entry.find_by(:name, name)
     system "clear"
     if match
       puts match.to_s
@@ -176,4 +191,3 @@ class MenuController
     end
   end
 end
-
