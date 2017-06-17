@@ -4,27 +4,21 @@ class MenuController
   attr_reader :address_book
 
   def initialize
-    @address_book = AddressBook.first
+    @address_book = AddressBook.new
   end
 
   def main_menu
-    puts "#{@address_book.name} Address Book Selected\n#{@address_book.entries.count} entries"
-    puts "0 - Switch AddressBook"
+    puts "Main Menu - #{address_book.entries.count} entries"
     puts "1 - View all entries"
     puts "2 - Create an entry"
     puts "3 - Search for an entry"
     puts "4 - Import entries from a CSV"
     puts "5 - Exit"
-    puts "6 - Test"
     print "Enter your selection: "
 
     selection = gets.to_i
 
     case selection
-      when 0
-        system "clear"
-        select_address_book_menu
-        main_menu
       when 1
         system "clear"
         view_all_entries
@@ -44,11 +38,6 @@ class MenuController
       when 5
         puts "Good-bye!"
         exit(0)
-      when 6
-        puts "Test"
-        test_1
-        main_menu
-
       else
         system "clear"
         puts "Sorry, that is not a valid input"
@@ -56,42 +45,8 @@ class MenuController
     end
   end
 
-  def select_address_book_menu
-     puts "Select an Address Book:"
-     AddressBook.all.each_with_index do |address_book, index|
-       puts "#{index} - #{address_book.name}"
-     end
-
-     index = gets.chomp.to_i
-
-     @address_book = AddressBook.find(index + 1)
-     system "clear"
-     return if @address_book
-     puts "Please select a valid index"
-     select_address_book_menu
-   end
-
-  def test_1
-    #check yo'self
-    # puts Entry.find_by(:name,"ewew")
-    # puts Entry.find_by_name("ewew")
-    # puts Entry.gotcha_find_by_name("ewew")
-    # Entry.womp_womp_find_by_name("ewew")
-    # puts Entry.find_each {|row| "#{row}" }
-    # puts (Entry.find_each(batch_size: 2) do |row|
-    #   "#{row}"
-    # end)
-    # puts Entry.find_in_batches(3,4) {|row| "#{row}"}
-    # puts Entry.order(:name, phone_number: :desc)
-    # puts Entry.order(name: :asc, phone_number: :desc)
-    # puts Entry.order("name ASC, phone_number DESC")
-    # puts Entry.order("phone_number DESC","name ASC")
-    
-
-  end
-
   def view_all_entries
-    @address_book.entries.each do |entry|
+    address_book.entries.each do |entry|
       system "clear"
       puts entry.to_s
       entry_submenu(entry)
@@ -120,7 +75,7 @@ class MenuController
   def search_entries
     print "Search by name: "
     name = gets.chomp
-    match = @address_book.find_entry(name)
+    match = address_book.binary_search(name)
     system "clear"
     if match
       puts match.to_s
@@ -221,3 +176,4 @@ class MenuController
     end
   end
 end
+

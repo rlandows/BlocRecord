@@ -50,7 +50,7 @@ require 'sqlite3'
    def method_missing(m, *args, &block)
      method = m.to_s
      arr = method.split("_")
-     if method.include? "find_by"
+     if method.start_with?("find_by")
        find_by(arr[-1],*args)
      else
       super
@@ -59,7 +59,7 @@ require 'sqlite3'
 
    # my_obj.respond_to?("find_by_number")
 
-   def find_each(options= {}, &block)
+   def find_each(options= {})
      if options.empty? == true
        sql = <<-SQL
          SELECT #{columns.join ","} FROM #{table}
@@ -75,8 +75,8 @@ require 'sqlite3'
      puts sql
      rows = connection.execute sql
 
-     rows_to_array(rows).each do |row|
-       yield(row)
+     rows.each do |row|
+       yield(init_object_from_row(row))
      end
 
 
@@ -89,9 +89,8 @@ require 'sqlite3'
        LIMIT #{batch_size}
      SQL
 
-    rows_to_array(rows).each do |row|
-      yield(row)
-    end
+      yield(rows_to_array(rows))
+
    end
 
    def take(num=1)
@@ -149,6 +148,79 @@ require 'sqlite3'
 
      rows_to_array(rows)
    end
+
+   def where(*args)
+     if args.count > 1
+       expression = args.shift
+       params = args
+     else
+        case args.first
+        when String
+          expression = args.first
+        when Hash
+          expression_hash = BlocRecord::Utility.convert_keys(args.first)
+          expression = expression_hash.map {|key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}"}.join(" and ")
+        end
+     end
+
+     sql = <<-SQL
+       SELECT #{columns.join ","} FROM #{table}
+       WHERE #{expression};
+     SQL
+
+     rows = connection.execute(sql, params)
+     rows_to_array(rows)
+   end
+
+   def order(*args)
+       args.map! do |arg|
+         case arg
+         when String
+           arg.to_s
+         when Symbol
+           arg.to_s
+         when Hash
+           expression_hash = BlocRecord::Utility.convert_keys(arg)
+           arg = expression_hash.map {|key, value| "#{key} #{value}"}.join(",")
+         end
+       end
+        order = args.join(",")
+     rows = connection.execute <<-SQL
+       SELECT * FROM #{table}
+       ORDER BY #{order};
+     SQL
+
+     rows_to_array(rows)
+   end
+
+   def join(*args)
+    if args.count > 1
+      joins = args.map { |arg| "INNER JOIN #{arg} ON #{arg}.#{table}_id = #{table}.id"}.join(" ")
+      rows = connection.execute <<-SQL
+        SELECT * FROM #{table} #{joins}
+      SQL
+    else
+      case args.first
+      when String
+        rows = connection.execute <<-SQL
+          SELECT * FROM #{table} #{BlocRecord::Utility.sql_strings(args.first)};
+        SQL
+      when Symbol
+        rows = connection.execute <<-SQL
+          SELECT * FROM #{table}
+          INNER JOIN #{args.first} ON #{args.first}.#{table}_id = #{table}.id
+        SQL
+      when Hash
+        rows = connection.execute <<-SQL
+        SELECT * FROM #{table}
+        INNER JOIN #{args.first.key} ON #{args.first.key}.#{table}_id = #{table.id}
+        INNER JOIN #{args.first.value} ON #{args.first.value}.#{args.first.key} = #{args.first.key}
+        SQL
+      end
+    end
+
+    rows_to_array(rows)
+  end
 
    private
    def init_object_from_row(row)
