@@ -1,4 +1,5 @@
 require 'sqlite3'
+require_relative 'errors'
 
 
  module Selection
@@ -56,7 +57,6 @@ require 'sqlite3'
       super
      end
    end
-
    # my_obj.respond_to?("find_by_number")
 
    def find_each(options= {})
@@ -196,28 +196,36 @@ require 'sqlite3'
    def join(*args)
     if args.count > 1
       joins = args.map { |arg| "INNER JOIN #{arg} ON #{arg}.#{table}_id = #{table}.id"}.join(" ")
-      rows = connection.execute <<-SQL
+      sql = <<-SQL
         SELECT * FROM #{table} #{joins}
       SQL
     else
       case args.first
       when String
-        rows = connection.execute <<-SQL
+        sql = <<-SQL
           SELECT * FROM #{table} #{BlocRecord::Utility.sql_strings(args.first)};
         SQL
       when Symbol
-        rows = connection.execute <<-SQL
+        sql = <<-SQL
           SELECT * FROM #{table}
           INNER JOIN #{args.first} ON #{args.first}.#{table}_id = #{table}.id
         SQL
       when Hash
-        rows = connection.execute <<-SQL
+        puts args.first.keys
+        puts args.first.values
+        puts table
+        sql = <<-SQL
         SELECT * FROM #{table}
-        INNER JOIN #{args.first.key} ON #{args.first.key}.#{table}_id = #{table.id}
-        INNER JOIN #{args.first.value} ON #{args.first.value}.#{args.first.key} = #{args.first.key}
+        INNER JOIN #{args.first.keys[0]} ON #{args.first.keys[0]}.#{table}_id = #{table}.id
+        INNER JOIN #{args.first.values[0]} ON #{args.first.values[0]}.#{args.first.keys[0]}_id = #{args.first.keys[0]}.id
         SQL
+
       end
     end
+
+    puts sql
+
+    rows = connection.execute sql
 
     rows_to_array(rows)
   end
@@ -231,6 +239,8 @@ require 'sqlite3'
    end
 
    def rows_to_array(rows)
-    rows.map { |row| new(Hash[columns.zip(row)]) }
+     collection = BlocRecord::Collection.new
+     rows.each { |row| collection << new(Hash[columns.zip(row)]) }
+     collection
   end
  end

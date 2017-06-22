@@ -74,7 +74,7 @@ class MenuController
   def test_1
     #check yo'self
     # puts Entry.find_by(:name,"ewew")
-    # puts Entry.find_by_name("ewew")
+    # puts Entry.find_by_name("Luke")
     # puts Entry.gotcha_find_by_name("ewew")
     # Entry.womp_womp_find_by_name("ewew")
     # puts Entry.find_each {|row| "#{row}" }
@@ -86,8 +86,14 @@ class MenuController
     # puts Entry.order(name: :asc, phone_number: :desc)
     # puts Entry.order("name ASC, phone_number DESC")
     # puts Entry.order("phone_number DESC","name ASC")
-    
-
+    #  people = { 1 => { "name" => "Jar Jar Binks" }, 2 => { "name" => "Luke" } }
+    # puts AddressBook.join(name: :address)
+    # puts Entry.update(people.keys,people.values)
+    # puts Entry.update(1, {"name" => "Taeco"})
+    # e = Entry.first
+    # e.update_name("Lemal" )
+    # puts Address[0]
+    puts AddressBook.join(entry: :address)
   end
 
   def view_all_entries
@@ -181,18 +187,20 @@ class MenuController
   end
 
   def edit_entry(entry)
+    updates = {}
     print "Updated name: "
     name = gets.chomp
+    updates[:name] = name unless name.empty?
     print "Updated phone number: "
     phone_number = gets.chomp
+    updates[:phone_number] = phone_number unless phone_number.empty?
     print "Updated email: "
     email = gets.chomp
-    entry.name = name if !name.empty?
-    entry.phone_number = phone_number if !phone_number.empty?
-    entry.email = email if !email.empty?
+    updates[:email] = email unless email.empty?
+    entry.update_attributes(updates)
     system "clear"
     puts "Updated entry:"
-    puts entry
+    puts Entry.find(entry.id)
   end
 
   def search_submenu(entry)

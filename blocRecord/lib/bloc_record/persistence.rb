@@ -1,5 +1,6 @@
 require 'sqlite3'
  require 'bloc_record/schema'
+ require_relative 'errors'
 
  module Persistence
    def self.included(base)
@@ -28,6 +29,25 @@ require 'sqlite3'
      true
    end
 
+   def update_attribute(attribute, value)
+     self.class.update(self.id, { attribute => value })
+   end
+
+  #  def method_missing(m, *args, &block)
+  #    puts self.id
+  #    method = m.to_s
+  #    arr = method.split("_")
+  #    if method.start_with?("update_")
+  #      self.class.update(self.id, {arr[-1] => args[0]})
+  #    else
+  #     super
+  #    end
+  #  end
+
+   def update_attributes(updates)
+     self.class.update(self.id, updates)
+   end
+
   module ClassMethods
     def create(attrs)
       attrs = BlocRecord::Utility.convert_keys(attrs)
@@ -43,5 +63,52 @@ require 'sqlite3'
       data["id"] = connection.execute("SELECT last_insert_rowid();")[0][0]
       new(data)
     end
+
+    def update(ids, updates)
+
+      if updates.class == Array
+        updates.map do |pair|
+        idx_val = updates.index(pair)
+          updated_pair = BlocRecord::Utility.convert_keys(pair)
+          updated_pair.delete "id"
+          updated_pair.each do |key, value|
+            puts key
+            puts value
+            set_claus = "#{key}=#{BlocRecord::Utility.sql_strings(value)}"
+            connection.execute <<-SQL
+              UPDATE #{table}
+              SET #{set_claus}
+              WHERE id = #{ids[idx_val]};
+            SQL
+
+            true
+          end
+        end
+      end
+      if updates.class == Hash
+        if ids.class == Fixnum
+           where_clause = "WHERE id = #{ids};"
+         elsif ids.class == Array
+           where_clause = ids.empty? ? ";" : "WHERE id IN (#{ids.join(",")});"
+         else
+           where_clause = ";"
+         end
+
+        updates = BlocRecord::Utility.convert_keys(updates)
+        updates.delete "id"
+        updates_array = updates.map { |key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}" }
+
+        connection.execute <<-SQL
+          UPDATE #{table}
+          SET #{updates_array * ","} #{where_clause}
+        SQL
+
+        true
+      end
+    end
+
+     def update_all(updates)
+       update(nil, updates)
+     end
   end
  end

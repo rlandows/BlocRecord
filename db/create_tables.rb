@@ -4,6 +4,7 @@ require 'sqlite3'
 
  db.execute("DROP TABLE address_book;");
  db.execute("DROP TABLE entry;");
+ db.execute("DROP TABLE address;");
 
  db.execute <<-SQL
      CREATE TABLE address_book (
@@ -22,3 +23,14 @@ require 'sqlite3'
        FOREIGN KEY (address_book_id) REFERENCES address_book(id)
      );
    SQL
+
+   db.execute <<-SQL
+       CREATE TABLE address (
+         id INTEGER PRIMARY KEY,
+         address_book_id INTEGER,
+         entry_id INTEGER,
+         address VARCHAR(30),
+         FOREIGN KEY (address_book_id) REFERENCES address_book(id),
+         FOREIGN KEY (entry_id) REFERENCES entry(id)
+       );
+     SQL

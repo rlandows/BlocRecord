@@ -1,4 +1,5 @@
 require_relative 'entry'
+require_relative 'address'
 require "csv"
 require 'bloc_record/base'
 
