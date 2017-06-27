@@ -93,7 +93,13 @@ class MenuController
     # e = Entry.first
     # e.update_name("Lemal" )
     # puts Address[0]
-    puts AddressBook.join(entry: :address)
+    # puts AddressBook.join(entry: :address).where('id = 1')
+    # puts Entry.where(name: 'Lemal').where(email: "foo_one@gmail.com")
+    # puts Entry.where(name: 'Luke').take
+    # puts Entry.not(name: 'Luke')
+    # puts Entry.where
+    # puts Entry.where(name: 'Luke')
+    puts Entry.where.not(name: 'Luke')
   end
 
   def view_all_entries

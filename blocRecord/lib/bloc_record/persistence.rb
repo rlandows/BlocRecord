@@ -33,16 +33,16 @@ require 'sqlite3'
      self.class.update(self.id, { attribute => value })
    end
 
-  #  def method_missing(m, *args, &block)
-  #    puts self.id
-  #    method = m.to_s
-  #    arr = method.split("_")
-  #    if method.start_with?("update_")
-  #      self.class.update(self.id, {arr[-1] => args[0]})
-  #    else
-  #     super
-  #    end
-  #  end
+   def method_missing(m, *args, &block)
+     puts self.id
+     method = m.to_s
+     arr = method.split("_")
+     if method.start_with?("update_")
+       self.class.update(self.id, {arr[-1] => args[0]})
+     else
+      super
+     end
+   end
 
    def update_attributes(updates)
      self.class.update(self.id, updates)
