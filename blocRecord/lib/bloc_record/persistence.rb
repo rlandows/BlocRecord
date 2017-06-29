@@ -2,6 +2,7 @@ require 'sqlite3'
  require 'bloc_record/schema'
  require_relative 'errors'
 
+
  module Persistence
    def self.included(base)
     base.extend(ClassMethods)
@@ -31,6 +32,10 @@ require 'sqlite3'
 
    def update_attribute(attribute, value)
      self.class.update(self.id, { attribute => value })
+   end
+
+   def destroy
+     self.class.destroy(self.id)
    end
 
    def method_missing(m, *args, &block)
@@ -109,6 +114,56 @@ require 'sqlite3'
 
      def update_all(updates)
        update(nil, updates)
+     end
+
+     def destroy(*id)
+       if id.length > 1
+         where_clause = "WHERE id IN (#{id.join(",")});"
+       else
+         where_clause = "WHERE id = #{id.first};"
+       end
+
+        sql = <<-SQL
+        DELETE FROM #{table} #{where_clause}
+       SQL
+       puts sql
+       rows = connection.execute(sql)
+
+       true
+     end
+
+     def destroy_all(*args)
+       if args.count == 1
+         case args.first
+         when Hash
+           args = BlocRecord::Utility.convert_keys(args.first)
+           conditions = args.map {|key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}"}.join(" and ")
+         when String
+           conditions = args.first
+         end
+         connection.execute <<-SQL
+           DELETE FROM #{table}
+           WHERE #{conditions};
+         SQL
+
+       elsif args.count > 1
+        args[0] = args.first.split("?")[0]
+        conditions = "#{args[0]}#{BlocRecord::Utility.sql_strings(args[1])}"
+        sql = <<-SQL
+          DELETE FROM #{table}
+          WHERE #{conditions};
+        SQL
+        # puts sql
+         rows = connection.execute(sql)
+       else
+
+         connection.execute <<-SQL
+           DELETE FROM #{table}
+         SQL
+       end
+
+
+       true
      end
   end
  end

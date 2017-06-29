@@ -248,7 +248,7 @@ require_relative 'errors'
          expression = args.first
        when Hash
          expression_hash = BlocRecord::Utility.convert_keys(args.first)
-         expression = expression_hash.map {|key, value| "#{key} NOT IN (#{BlocRecord::Utility.sql_strings(value)})"}.join(" ")
+         expression = expression_hash.map {|key, value| "#{key} <> (#{BlocRecord::Utility.sql_strings(value)})"}.join(" ")
        end
     end
 

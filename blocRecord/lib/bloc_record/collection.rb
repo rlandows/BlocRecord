@@ -1,3 +1,4 @@
+
 module BlocRecord
    class Collection < Array
      def update_all(updates)
@@ -19,6 +20,13 @@ module BlocRecord
      def not(*args)
        ids = self.map(&:id)
        self.any? ? self.first.class.not(*args) : false
+     end
+
+     def destroy_all(*args)
+       ids = self.map(&:id)
+       ids.each do |id|
+         self.first.class.destroy(id)
+       end
      end
    end
  end

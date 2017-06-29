@@ -99,7 +99,10 @@ class MenuController
     # puts Entry.not(name: 'Luke')
     # puts Entry.where
     # puts Entry.where(name: 'Luke')
-    puts Entry.where.not(name: 'Luke')
+    # puts Entry.where.not(name: 'Luke')
+    # puts Entry.destroy_all(name: 'Luke')
+    # puts Entry.destroy_all("phone_number = ?", '999-999-9999')
+    puts Entry.where(phone_number: '111-111-1111').destroy_all
   end
 
   def view_all_entries
@@ -188,7 +191,7 @@ class MenuController
   end
 
   def delete_entry(entry)
-    address_book.entries.delete(entry)
+    entry.destroy
     puts "#{entry.name} has been deleted"
   end
 
