@@ -1,0 +1,217 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1504
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;\red193\green193\blue193;
+}
+{\*\expandedcolortbl;\csgray\c100000;\csgray\c0;\csgray\c100000;\cssrgb\c80000\c80000\c80000;
+}
+\margl1440\margr1440\vieww14280\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 1. remove duplicates in a query response\
+	sql.openConnection()\
+	unique_post_ids = sql.performQuery(SELECT DISTINCT post_id FROM comment)\
+	sql.closeConnection()\
+\
+	posts = Post.all\
+	posts.uniq\
+\
+2. filter records using inequalities, pattern matching, ranges, and boolean logic.\
+	
+\b #inequality
+\b0 \
+	sql.openConnection()\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	inequality = sql.performQuery(
+\f1\fs22 \cf2 \cb3 \CocoaLigature0 SELECT * FROM post WHERE id == 2;
+\f0\fs24 \cf0 \cb1 \CocoaLigature1 )\
+	sql.closeConnection()\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	posts = Post.all\
+	matches = []\
+	posts.each do |post|\
+		if post.id == 2\
+			matches << post\
+		end\
+	end \
+	matches\
+\
+	
+\b #pattern matching\
+	
+\b0 sql.openConnection()\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	inequality = sql.performQuery(
+\f1\fs22 \cf2 \cb3 \CocoaLigature0 SELECT * FROM user WHERE name LIKE \'91r%\'92;
+\f0\fs24 \cf0 \cb3 \CocoaLigature1 )\
+	sql.closeConnection()
+\b \cb1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	
+\b0 \
+	user = User.all\
+	user.pattern_match(\'91r\'92)\
+\
+	
+\b #ranges\
+	
+\b0 sql.openConnection()\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	range = sql.performQuery(
+\f1\fs22 \cf2 \cb3 \CocoaLigature0 SELECT * FROM post WHERE id BETWEEN 1 AND 2;
+\f0\fs24 \cf0 \cb3 \CocoaLigature1 )\
+	sql.closeConnection()
+\b \cb1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	
+\b0 \
+	posts = Post.all\
+	matches = []\
+	posts.each do |post|\
+		if post.id < 2\
+			matches << post\
+		end\
+	end \
+	matches\
+\
+	
+\b #boolean logic\
+	
+\b0 sql.openConnection()\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	bool = sql.performQuery(
+\f1\fs22 \cf2 \cb3 \CocoaLigature0 SELECT * FROM post WHERE id == 1 OR id == 2;
+\f0\fs24 \cf0 \cb3 \CocoaLigature1 )\
+	sql.closeConnection()
+\b \cb3 \
+	\cb1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	
+\b0 \
+	posts = Post.all\
+	matches = []\
+	posts.each do |post|\
+		if post.user_id == 1 || post.user.id == 2\
+			matches << post\
+		end\
+	end\
+	matches\
+\
+\
+3.sort records in a particular order\
+\
+	sql.openConnection()\
+	order =  sql.performQuery(SELECT * FROM post ORDER BY user_id ASC LIMIT 10;)\
+	sql.closeConnection()\
+\
+	posts = Post.all\
+	posts.sort_by! do |post|\
+		post.user_id\
+	end\
+	\
+\
+4.limit the number of records returned\
+	sql.openConnection()\
+	order = sql.performQuery(SELECT * FROM post ORDER BY id ASC LIMIT 3;)\
+	sql.closeConnection()\
+\
+	posts = Post.all\
+	(0..2).each do |num|\
+		puts posts[num]\
+	end\
+\
+\
+\
+\
+5.group records into sections\
+\
+	sql.openConnection()\
+	group = sql.performQuery(
+\f1\fs22 \cf2 \cb3 \CocoaLigature0 SELECT user_id, COUNT(user_id) FROM post GROUP BY user_id;)
+\f0\fs24 \cf0 \cb1 \CocoaLigature1 \
+	sql.closeConnection()\
+\
+	posts = Post.all\
+	posts.group_by |post|\
+		post.user_id\
+	end\
+\
+\
+\
+\
+6.perform calculations using aggregate functions\
+\
+	sql.openConnection()\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	sum = sql.performQuery(
+\f1\fs22 \cf2 \cb3 \CocoaLigature0 SELECT sum(user_id) FROM post WHERE user_id > 0;)
+\f0\fs24 \cf0 \cb3 \CocoaLigature1 \
+	sql.closeConnection()\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \cb1 \
+\
+	posts = Post.all\
+	posts.sum do |post|\
+		post.user_id\
+	end \
+\
+7. join tables using cross join, inner join, and outer join\
+	
+\b #cross join, Assuming these two have no relation at all. In this scenario topics has an: (id, title)\
+
+\b0 \
+	sql.openConnection()\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	sum = sql.performQuery(
+\f1\fs22 \cf2 \cb3 \CocoaLigature0 SELECT albums.name, albums.year, artists.name FROM albums, artists;)
+\f0\fs24 \cf0 \cb3 \CocoaLigature1 \
+	sql.closeConnection()\cb1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	posts = Post.all\
+	topics = Topics.all \
+\
+	cross_join(posts, topics)\
+\
+	
+\b #inner join\
+	
+\b0 sql.openConnection()\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	inner = sql.performQuery(
+\f1\fs22 \cf2 \cb3 \CocoaLigature0 SELECT * FROM albums JOIN artists ON albums.artist_id = artists.id;)
+\f0\fs24 \cf0 \cb3 \CocoaLigature1 \
+	sql.closeConnection()
+\b \cb1 \
+\pard\pardeftab720\sl340\partightenfactor0
+
+\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	posts = Post.all\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	users = User.all \
+\
+	inner_join(posts,users)\
+	
+\b #outer join\
+	
+\b0 sql.openConnection()
+\b \
+	
+\b0 outer = sql.performQuery(
+\f1\fs22 \cf2 \cb3 \CocoaLigature0 SELECT * FROM albums LEFT JOIN artists ON albums.artist_id = artists.id;)
+\f0\b\fs24 \cf0 \cb1 \CocoaLigature1 \
+	
+\b0 sql.closeConnection()\
+\
+	posts = Post.all\
+	users = User.all\
+\
+	outer_join(posts,users)
+\b \
+\pard\pardeftab720\sl340\partightenfactor0
+
+\b0\fs32 \cf4 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec4 \
+}

@@ -24,9 +24,7 @@ module BlocRecord
 
      def destroy_all(*args)
        ids = self.map(&:id)
-       ids.each do |id|
-         self.first.class.destroy(id)
-       end
+         self.first.class.destroy(*ids)
      end
    end
  end

@@ -147,14 +147,17 @@ require 'sqlite3'
          SQL
 
        elsif args.count > 1
-        args[0] = args.first.split("?")[0]
-        conditions = "#{args[0]}#{BlocRecord::Utility.sql_strings(args[1])}"
+        # args[0] = args.first.split("?")[0]
+        # conditions = "#{args[0]}#{BlocRecord::Utility.sql_strings(args[1])}"
+        expression = args.shift
+        params = args
         sql = <<-SQL
           DELETE FROM #{table}
-          WHERE #{conditions};
+          WHERE #{expression};
         SQL
         # puts sql
-         rows = connection.execute(sql)
+         rows = connection.execute(sql,params)
+         rows_to_array(rows)
        else
 
          connection.execute <<-SQL

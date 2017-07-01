@@ -101,8 +101,8 @@ class MenuController
     # puts Entry.where(name: 'Luke')
     # puts Entry.where.not(name: 'Luke')
     # puts Entry.destroy_all(name: 'Luke')
-    # puts Entry.destroy_all("phone_number = ?", '999-999-9999')
-    puts Entry.where(phone_number: '111-111-1111').destroy_all
+    puts Entry.destroy_all("phone_number = ?", '999-999-9999')
+    # puts Entry.where(phone_number: '222-222-2222').destroy_all
   end
 
   def view_all_entries
