@@ -5,7 +5,7 @@ require_relative 'errors'
  module Selection
 
    def find(*ids)
-
+puts ids.length
     if ids.is_a?(Integer) == false
       if ids.is_a?(Array) == false
        return "Not a valid input."
@@ -175,7 +175,7 @@ require_relative 'errors'
           WHERE #{expression};
         SQL
 
-    #  puts sql
+     puts sql
      rows = connection.execute(sql, params)
      rows_to_array(rows)
    end
@@ -256,7 +256,7 @@ require_relative 'errors'
       SELECT #{columns.join ","} FROM #{table}
       WHERE #{expression};
     SQL
-
+    puts sql
     rows = connection.execute(sql, params)
     rows_to_array(rows)
   end

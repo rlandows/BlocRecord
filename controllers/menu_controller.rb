@@ -94,14 +94,14 @@ class MenuController
     # e.update_name("Lemal" )
     # puts Address[0]
     # puts AddressBook.join(entry: :address).where('id = 1')
-    # puts Entry.where(name: 'Lemal').where(email: "foo_one@gmail.com")
-    # puts Entry.where(name: 'Luke').take
+    # puts Entry.where(name: 'Foo Two').where(email: "foo_two@gmail.com")
+    puts Entry.where(email: "foo_two@gmail.com").take
     # puts Entry.not(name: 'Luke')
     # puts Entry.where
     # puts Entry.where(name: 'Luke')
     # puts Entry.where.not(name: 'Luke')
     # puts Entry.destroy_all(name: 'Luke')
-    puts Entry.destroy_all("phone_number = ?", '999-999-9999')
+    # puts Entry.destroy_all("phone_number = ?", '999-999-9999')
     # puts Entry.where(phone_number: '222-222-2222').destroy_all
   end
 

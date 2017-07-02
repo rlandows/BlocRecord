@@ -6,20 +6,22 @@ module BlocRecord
        self.any? ? self.first.class.update(ids, updates) : false
      end
 
-     def take(*args)
+     def take(num = 1)
        ids = self.map(&:id)
-       self.any? ? self.first.class.take(*args) : false
+       id_list = ids[0..num - 1]
+       self.any? ? self.first.class.find(*id_list) : false
      end
 
      def where(*args)
-      #  puts args
        ids = self.map(&:id)
+       id_string = ids.join(",")
+       args[0][:id] = id_string
        self.any? ? self.first.class.where(*args) : false
      end
 
      def not(*args)
        ids = self.map(&:id)
-       self.any? ? self.first.class.not(*args) : false
+       self.any? ? self.first.class.not("id IN (#{ids.join(",")})") : false
      end
 
      def destroy_all(*args)
