@@ -4,7 +4,7 @@ require "csv"
 require 'bloc_record/base'
 
 class AddressBook < BlocRecord::Base
-  attr_reader :entries
+  has_many :entries
 
   def add_entry(name, phone_number, email)
     index = 0
